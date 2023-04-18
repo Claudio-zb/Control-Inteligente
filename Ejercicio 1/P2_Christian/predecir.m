@@ -9,8 +9,10 @@ Y_val = split.Y_val;
 
 reg = [1 2 5 6];
 X_val_opt = X_val(:, reg);
-%% Predicciones (a 1 paso por ahora)
-y_pred = ysim(X_val_opt, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g);
+%% Predicciones
+%y_pred = ysim(X_val_opt, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g); %A un paso
+n_pasos = 16;
+y_pred = predictFuzzy(X_val_opt, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g, n_pasos, 2);
 
 figure()
 plot(Y_val, '.b')
