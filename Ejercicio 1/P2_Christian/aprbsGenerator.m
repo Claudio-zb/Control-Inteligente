@@ -1,4 +1,5 @@
 function [aprbs] = aprbsGenerator(fmax, fmin, fs, Ndatos, rango, n_niveles)
+% Generador de APRBS
 %fmax: frecuencia maxima de interes
 %fmin: frecuencia minima de interes
 %fs: frecuencia de sampleo del sistema (se debe cumplir fs>2fmax)

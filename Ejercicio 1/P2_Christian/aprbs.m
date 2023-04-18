@@ -14,7 +14,7 @@ niveles = linspace(0, 1, n_niveles); %Niveles de amplitud
 
 muestras = 100; %Cantidad de muestras a generar (CAMBIAR)
 salidas = zeros(1, muestras); %Vector con las salidas
-amp_mod = true; %Activar la modificacion de la amplitud
+amp_mod = false; %Activar la modificacion de la amplitud
 
 for i=1:muestras
     out = mod(sum(a.*reg), 2); %Calcular la salida
