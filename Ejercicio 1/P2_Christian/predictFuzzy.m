@@ -55,6 +55,10 @@ for k=1:Nd-p+1
 
         X_y = circshift(X_y, 1); %Correr regresores de y
         X_y(1) = y; %Agregar prediccion a los regresores
+
+        if k+h-1<p
+            y_pred(k+h-1) = y; %Arreglar primeras predicciones
+        end
     end
 
     y_pred(k+p-1) = y; %Agregar prediccion p step
