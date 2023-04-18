@@ -7,7 +7,7 @@ Tinit = 260; % [°C] Temperatura inicial de salida del aceite
 
 %Condiciones iniciales
 Irr_init = 920; % [W/m2]
-Tout_init = 260; % [°C]
 Tin_init = 185; % [°C]
 Tamb_init = 25; % [°C]
 V_init = 7; % [l/s]
+Tout_init = n0_S
