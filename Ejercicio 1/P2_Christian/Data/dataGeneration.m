@@ -37,6 +37,18 @@ legend('u(k)', 'y(k)')
 title('Serie de Chen')
 
 %% Guardar datos
-filename = 'DatosP2.mat';
+filename = 'Data/DatosP2.mat';
 datos = [u(1:size(y))', y];
 save(filename, 'datos');
+
+%% Generar split
+nu = 10; %Cantidad regresores u
+ny = 10; %Cantidad regresores y
+
+porcentajes = [0.6 0.2 0.2]; %Porcentaje train, test, val
+
+[X, Y] = crearMatrices(u, y, nu, ny);
+[X_train, Y_train, X_test, Y_test, X_val, Y_val] = createSplit(X, Y, porcentajes);
+
+split = struct('X_train', X_train, 'Y_train', Y_train, 'X_test', X_test, 'Y_test', Y_test, 'X_val', X_val, 'Y_val', Y_val);
+save("Data/split.mat", "split");

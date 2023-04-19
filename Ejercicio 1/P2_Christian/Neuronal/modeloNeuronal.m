@@ -1,10 +1,10 @@
 %% Configurar entorno
 clear all
 clc
-addpath("../Toolbox/Toolbox NN");
+addpath("Toolbox/Toolbox NN");
 
 %% Cargar datos
-load("split.mat");
+load("Data/split.mat");
 
 %% Parametros modelo
 max_hlayer = 5:5:30;
@@ -28,7 +28,7 @@ for h=max_hlayer
     net.("H"+h) = net_ent;
 end
 %% Fijar modelo
-hlayer = 5; %Capas ocultas mejor modelo
+hlayer = 15; %Capas ocultas mejor modelo
 %% Guardado
 net_ent = net.("H"+hlayer);
 %% Entrenar de cero
@@ -40,7 +40,7 @@ net_ent = train(net_ent,split.X_train',split.Y_train', 'useParallel','yes');
 [p, indices] = sensibilidad_nn(split.X_train, net_ent);
 
 %% Fijar regresores
-reg = [1 2 3 4 5 6 7 8];
+reg = [1 2 11 12];
 X_train_opt = split.X_train(:, reg);
 X_test_opt = split.X_test(:, reg);
 X_val_opt = split.X_val(:, reg);
@@ -51,7 +51,10 @@ modelNN.trainFcn = 'trainscg';
 modelNN.trainParam.showWindow=0;
 modelNN = train(modelNN,X_train_opt',split.Y_train', 'useParallel','yes');
 
+y_p_test = modelNN(X_test_opt')'; % Se genera una prediccion en conjunto de test
+errtest= (sqrt(sum((y_p_test-split.Y_test).^2)))/length(split.Y_test); % Se guarda el error de test
+
 %% Guardar modelo
 modelNNStruct = my_ann_exporter(modelNN);
 
-save("modelo_neuronal.mat", "modelNNStruct");
+save("Neuronal/modelo_neuronal.mat", "modelNNStruct");

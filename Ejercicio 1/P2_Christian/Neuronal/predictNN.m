@@ -1,13 +1,11 @@
-function y_pred = predictNN(net, X, p, ny)
+function y_pred = predictNN(net, X, p, ny, regresores)
 % Works with only single INPUT vector
 % Matrix version can be implemented
 % net: Estructura de la red entrenada
 % X: matriz con los datos
 % p: pasos a predecir
 % ny: regresores de y
-%
-% WARNING: Aqui se hace la suposicion de que los regresores de y son los
-% ultimos (i.e., y(k-1), y(k-2), ...) y no estan saltados (e.g., y(k-2), y(k-5)...)
+% regresores: lista de los regresores a usar
 
 %Parametros de normalizacion
 ymax = net.input_ymax;
@@ -30,6 +28,7 @@ for k=1:Nd-p+1
     for h=1:p
         X_u = X(k+h-1, ny+1:end); %Regresores de u
         X_new = [X_y, X_u]; %todos los regresores
+        X_new = X_new(1, regresores); %Sacar regresores que no se usan
         X_new = X_new';
         input_preprocessed = (ymax-ymin) * (X_new-xmin) ./ (xmax-xmin) + ymin;
 

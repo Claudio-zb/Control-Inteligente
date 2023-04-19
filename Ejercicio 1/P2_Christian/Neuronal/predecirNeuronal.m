@@ -1,19 +1,19 @@
 %% Cargar modelo y datos
-addpath("../Toolbox/Toolbox NN");
+addpath("Toolbox/Toolbox NN");
 
-load("modelo_neuronal.mat");
-load("split.mat");
+load("Neuronal/modelo_neuronal.mat");
+load("Data/split.mat");
 
 X_val = split.X_val;
 Y_val = split.Y_val;
 
-reg = [1 2 3 4 5 6 7 8];
-X_val_opt = X_val(:, reg);
+ny = 10; %Cantidad de regresores de y
+reg = [1 2 11 12];
 
 %% Prediccion
 n_pasos = 1;
 %y_pred = my_ann_evaluation(modelNNStruct, X_val_opt');
-y_pred = predictNN(modelNNStruct, X_val_opt, n_pasos, 4);
+y_pred = predictNN(modelNNStruct, X_val, n_pasos, ny, reg);
 
 figure()
 plot(split.Y_val, '.b')

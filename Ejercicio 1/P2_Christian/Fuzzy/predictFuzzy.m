@@ -1,4 +1,4 @@
-function y_pred = predictFuzzy(X,a,b,g,p, ny)
+function y_pred = predictFuzzy(X,a,b,g,p, ny, regresores)
 % Creates the model's predicction
 % y is the vector of outputs when evaluating the TS defined by a,b,g
 % X is the data matrix
@@ -7,13 +7,12 @@ function y_pred = predictFuzzy(X,a,b,g,p, ny)
 % g is the consecuence parameters
 % p: pasos a predecir
 % ny: cantidad de regresores de y
-%
-% WARNING: Aqui se hace la suposicion de que los regresores de y son los
-% ultimos (i.e., y(k-1), y(k-2), ...) y no estan saltados (e.g., y(k-2), y(k-5)...)
+% regresores: regresores a utilizar
 
 % Nd number of point we want to evaluate
 % n is the number of regressors of the TS model
-[Nd,n]=size(X);
+[Nd,~]=size(X);
+n = length(regresores);
 
 % NR is the number of rules of the TS model
 NR=size(a,1);         
@@ -28,6 +27,7 @@ for k=1:Nd-p+1
     for h=1:p
         X_u = X(k+h-1, ny+1:end); %Regresores de u
         X_new = [X_y, X_u]; %todos los regresores
+        X_new = X_new(1, regresores); %Eliminar regresores que no se ocupan
 
         % W(r) is the activation degree of the rule r
         % mu(r,i) is the activation degree of rule r, regressor i
