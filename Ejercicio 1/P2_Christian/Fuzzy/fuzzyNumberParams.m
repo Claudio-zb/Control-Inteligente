@@ -13,23 +13,24 @@ b = [];
 
 %Limites
 s0 = [modelFuzzy.g, modelFuzzy.g];
-smin = s0-2;
-smax = s0+2;
+smin = s0-0.5;
+smax = s0+0.5;
 
-%fun = @(s)lossInterval(s, eta1, eta2, alpha,reg, X, Y, modelFuzzy);
+fun = @(s)lossInterval(s, eta1, eta2, alpha, reg, X, Y, modelFuzzy);
+options = optimoptions('particleswarm', 'MaxIterations', 100);
+[x, fval] = particleswarm(fun, numel(s0), smin, smax, options);
 
-%[x, fval] = fmincon(fun, s0, A, b, Aeq, beq, smin, smax);
-
-fun = @(s)lossPINAW(s, reg, X, Y, modelFuzzy);
-const = @(s)constPICP(s, reg, X, Y, modelFuzzy, alpha);
-
-options = optimoptions('fmincon', 'MaxIterations',20);
-[x, fval] = fmincon(fun, s0, A, b, Aeq, beq, smin, smax, const, options);
+% fun = @(s)lossPINAW(s, reg, X, Y, modelFuzzy);
+% const = @(s)constPICP(s, reg, X, Y, modelFuzzy, alpha);
+% 
+% options = optimoptions('fmincon', 'MaxIterations',20);
+% [x, fval] = fmincon(fun, s0, A, b, Aeq, beq, smin, smax, const, options);
 
 end
 
-function loss = lossInterval(s, eta1, eta2, alpha, reg, X, Y, modelFuzzy)
+function loss = lossInterval(s, eta1, eta2, alpha,  reg, X, Y, modelFuzzy)
 
+s = reshape(s, [], reg*2);
 sl = s(:,1:reg);
 su = s(:,reg+1:end);
 
