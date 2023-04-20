@@ -1,35 +1,32 @@
 function x = fuzzyNumberParamsNeuronal(X, Y, modelNNStruct)
 
 % %Restricciones
-% Aeq = [];
-% beq = [];
-% A = [];
-% b = [];
-% 
-% sizeLast = 15; %tamano ultima capa
-% alpha = 0.2;
-% 
-% params0 = [modelNNStruct.LW-0.01, modelNNStruct.b2-0.01,modelNNStruct.LW+0.01, modelNNStruct.b2+0.01];
-% 
-% 
-% fun = @(params)lossPINAWNN(params, sizeLast, X, Y, modelNNStruct);
-% const = @(params)constPICPNN(params, sizeLast, X, Y, modelNNStruct, alpha);
-% 
-% options = optimoptions('fmincon', 'MaxIterations',500);
-% [x, ~] = fmincon(fun, params0, A, b, Aeq, beq, params0-2, params0+2, const, options);
+Aeq = [];
+beq = [];
+A = [];
+b = [];
 
-eta1 = 0.1;
-eta2 = 0.9;
-alpha = 0.1;
+%Parametros
+alpha = 0.2;
 sizeLast = 15; %tamano ultima capa
 
 params0 = [modelNNStruct.LW, modelNNStruct.b2,modelNNStruct.LW, modelNNStruct.b2];
-lb = params0-0.5;
-ub = params0+0.5;
+p0 = zeros(size(params0));
+lb = p0-0.5;
+ub = p0+0.5;
 
-fun = @(params)lossInterval(params, eta1, eta2, alpha,sizeLast, X, Y, modelNNStruct);
 
-x = particleswarm(fun,(sizeLast+1)*2, lb, ub);
+% eta1 = 0.1;
+% eta2 = 0.9;
+% fun = @(params)lossInterval(params, eta1, eta2, alpha,sizeLast, X, Y, modelNNStruct);
+% 
+% x = particleswarm(fun,numel(params0), lb, ub);
+
+fun = @(params)lossPINAWNN(params, sizeLast, X, Y, modelNNStruct);
+const = @(params)constPICPNN(params, sizeLast, X, Y, modelNNStruct, alpha);
+
+options = optimoptions('fmincon', 'MaxIterations',1000);
+[x, ~] = fmincon(fun, params0, A, b, Aeq, beq, lb, ub, const, options);
 
 end
 
@@ -70,5 +67,6 @@ bu = params(:,end);
 [y_pred_upper, ~, y_pred_lower] = fuzzyNumberIntervalNeuronal(X', modelNN, LWl, bl, LWu, bu);
 picp = PICP(Y, y_pred_lower, y_pred_upper);
 const = picp -(1-alpha);
-dummy = 0;
+loss = PINAW(Y, y_pred_lower, y_pred_upper);
+dummy = -loss;
 end

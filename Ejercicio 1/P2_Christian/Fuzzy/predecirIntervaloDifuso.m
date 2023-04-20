@@ -14,7 +14,7 @@ X_val = split.X_val(:, reg);
 Y_val = split.Y_val;
 
 %% Predicciones
-alpha = 5e-6;
+alpha = 10;
 [Psi_train, sigma] = getCovIntervalParams(X_train, Y_train, modelFuzzy.a,modelFuzzy.b,modelFuzzy.g);
 [y_pred_upper, y_pred, y_pred_lower] = covFuzzyInterval(Psi_train, sigma, X_val, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g, alpha);
 

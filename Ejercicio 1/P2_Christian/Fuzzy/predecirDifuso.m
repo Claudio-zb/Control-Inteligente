@@ -11,7 +11,7 @@ ny = 10; %Cantidad de regresores de y
 reg = [1 2 11 12];
 %% Predicciones
 %y_pred = ysim(X_val_opt, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g); %A un paso
-n_pasos = 16;
+n_pasos = 1;
 y_pred = predictFuzzy(X_val, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g, n_pasos, ny, reg);
 
 figure()

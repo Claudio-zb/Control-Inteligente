@@ -1,9 +1,9 @@
-function [x, fval] = fuzzyNumberParams(X, Y, modelFuzzy)
+function [x, fval] = fuzzyNumberParams(X, Y, modelFuzzy, reg)
 
 eta1 = 0.1;
 eta2 = 0.9;
-alpha = 0.1;
-reg = 5;
+alpha = 0.2;
+reg = reg+1;
 
 %Restricciones
 Aeq = [];
@@ -16,15 +16,15 @@ s0 = [modelFuzzy.g, modelFuzzy.g];
 smin = s0-0.5;
 smax = s0+0.5;
 
-fun = @(s)lossInterval(s, eta1, eta2, alpha, reg, X, Y, modelFuzzy);
-options = optimoptions('particleswarm', 'MaxIterations', 100);
-[x, fval] = particleswarm(fun, numel(s0), smin, smax, options);
+% fun = @(s)lossInterval(s, eta1, eta2, alpha, reg, X, Y, modelFuzzy);
+% options = optimoptions('particleswarm', 'MaxIterations', 100);
+% [x, fval] = particleswarm(fun, numel(s0), smin, smax, options);
 
-% fun = @(s)lossPINAW(s, reg, X, Y, modelFuzzy);
-% const = @(s)constPICP(s, reg, X, Y, modelFuzzy, alpha);
-% 
-% options = optimoptions('fmincon', 'MaxIterations',20);
-% [x, fval] = fmincon(fun, s0, A, b, Aeq, beq, smin, smax, const, options);
+fun = @(s)lossPINAW(s, reg, X, Y, modelFuzzy);
+const = @(s)constPICP(s, reg, X, Y, modelFuzzy, alpha);
+
+options = optimoptions('fmincon', 'MaxIterations',20);
+[x, fval] = fmincon(fun, s0, A, b, Aeq, beq, smin, smax, const, options);
 
 end
 

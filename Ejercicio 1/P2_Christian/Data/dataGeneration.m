@@ -1,11 +1,12 @@
 %% Parametros
+rng('default');
 rng(0);
-fmax = 1; %Frecuencia maxima
-fmin = 0.2; %Frecuencia minima
-fs = 100; %Frecuencia de sampleo
+fmax = 1/(20*2.5); %Frecuencia maxima
+fmin = 1/(7*20); %Frecuencia minima
+fs = 1; %Frecuencia de sampleo
 Ndatos = 10000; %Cantidad de datos
 rango = [-2, 2]; %Rango de la APRBS
-n_niveles = 11; %Cantidad de niveles de la APRBS
+n_niveles = 2^4; %Cantidad de niveles de la APRBS
 
 %% Generacion de la entrada
 u = aprbsGenerator(fmax, fmin, fs, Ndatos, rango, n_niveles); %Entrada APRBS

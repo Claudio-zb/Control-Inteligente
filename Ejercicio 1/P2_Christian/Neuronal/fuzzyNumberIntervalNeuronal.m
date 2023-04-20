@@ -16,8 +16,8 @@ input_preprocessed = (ymax-ymin) * (X-xmin) ./ (xmax-xmin) + ymin;
 y1 = tanh(net.IW * input_preprocessed + net.b1);
 
 y2 = net.LW * y1 + net.b2;
-y2l = LWl * y1 + bl;
-y2u = LWu * y1 + bu;
+y2l = y2 - LWl * abs(y1) + bl;
+y2u = y2 + LWu * abs(y1) + bu;
 
 res = (y2-ymin_out) .* (xmax_out-xmin_out) /(ymax_out-ymin_out) + xmin_out;
 resl = (y2l-ymin_out) .* (xmax_out-xmin_out) /(ymax_out-ymin_out) + xmin_out;
