@@ -1,8 +1,7 @@
-function [x, fval] = fuzzyNumberParams(X, Y, modelFuzzy, reg)
+function [x, fval] = fuzzyNumberParams(X, Y, modelFuzzy, reg, alpha)
 
 eta1 = 0.1;
 eta2 = 0.9;
-alpha = 0.2;
 reg = reg+1;
 
 %Restricciones
@@ -60,5 +59,3 @@ picp = PICP(Y, y_pred_lower, y_pred_upper);
 const = picp -(1-alpha);
 dummy = 0;
 end
-
-

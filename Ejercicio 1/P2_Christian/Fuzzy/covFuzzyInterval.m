@@ -1,4 +1,4 @@
-function [y_pred_upper, y_pred, y_pred_lower] = covFuzzyInterval(Psi_train, sigma, X_pred,a,b,g, alpha)
+function [y_pred_upper, y_pred, y_pred_lower] = covFuzzyInterval(factor, sigma, X_pred,a,b,g, alpha)
 % Genera la prediccion de intevalos del modelo difuso por metodo de
 % covarianza
 %
@@ -17,11 +17,7 @@ y_pred = zeros(Nv, 1);
 y_pred_upper = zeros(Nv, 1);
 y_pred_lower = zeros(Nv, 1);
 
-factor = zeros(NR, n+1, n+1);
 
-for j=1:NR
-    factor(j, :, :) = inv(squeeze(Psi_train(j, :, :))*squeeze(Psi_train(j, :, :))');
-end
 
 for k=1:Nv
 
