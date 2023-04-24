@@ -28,14 +28,21 @@ end
 
 %% Mostrar graficos
 n_mostrar = 500; %Cantidad de muestras a mostrar
-figure()
+
+figure
+subplot(2, 1, 1)
 stairs(u(1:n_mostrar));
-hold on
+xlabel('Tiempo k')
+ylabel('Amplitud')
+title('APRBS')
+
+subplot(2,1,2)
 stairs(y(1:n_mostrar));
 xlabel('Tiempo k')
 ylabel('Amplitud')
-legend('u(k)', 'y(k)')
 title('Serie de Chen')
+
+saveas(gcf, 'Figuras/dataGenerated.png')
 
 %% Guardar datos
 filename = 'Data/DatosP2.mat';
@@ -43,8 +50,8 @@ datos = [u(1:size(y))', y];
 save(filename, 'datos');
 
 %% Generar split
-nu = 10; %Cantidad regresores u
-ny = 10; %Cantidad regresores y
+nu = 4; %Cantidad regresores u
+ny = 4; %Cantidad regresores y
 
 porcentajes = [0.6 0.2 0.2]; %Porcentaje train, test, val
 
