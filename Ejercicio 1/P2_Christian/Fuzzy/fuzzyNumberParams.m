@@ -12,8 +12,8 @@ b = [];
 
 %Limites
 s0 = [modelFuzzy.g, modelFuzzy.g];
-smin = s0-0.5;
-smax = s0+0.5;
+smin = zeros(size(s0))-3;
+smax = zeros(size(s0))+3;
 
 % fun = @(s)lossInterval(s, eta1, eta2, alpha, reg, X, Y, modelFuzzy);
 % options = optimoptions('particleswarm', 'MaxIterations', 100);
@@ -57,5 +57,6 @@ su = s(:,reg+1:end);
 [y_pred_upper, ~, y_pred_lower] = fuzzyNumberInterval(X, modelFuzzy.a,modelFuzzy.b,modelFuzzy.g, sl, su);
 picp = PICP(Y, y_pred_lower, y_pred_upper);
 const = picp -(1-alpha);
-dummy = 0;
+loss = PINAW(Y, y_pred_lower, y_pred_upper);
+dummy = -loss;
 end

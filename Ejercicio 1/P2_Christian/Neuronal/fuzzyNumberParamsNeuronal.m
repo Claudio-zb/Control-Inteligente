@@ -1,4 +1,4 @@
-function x = fuzzyNumberParamsNeuronal(X, Y, modelNNStruct)
+function x = fuzzyNumberParamsNeuronal(X, Y, modelNNStruct, alpha, sizeLast)
 
 % %Restricciones
 Aeq = [];
@@ -6,14 +6,10 @@ beq = [];
 A = [];
 b = [];
 
-%Parametros
-alpha = 0.2;
-sizeLast = 15; %tamano ultima capa
-
 params0 = [modelNNStruct.LW, modelNNStruct.b2,modelNNStruct.LW, modelNNStruct.b2];
 p0 = zeros(size(params0));
-lb = p0-0.5;
-ub = p0+0.5;
+lb = p0-0.1;
+ub = p0+0.1;
 
 
 % eta1 = 0.1;

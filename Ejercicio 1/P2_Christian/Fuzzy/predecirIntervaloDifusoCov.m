@@ -1,4 +1,6 @@
 %% Cargar modelo y datos
+clear
+clc
 addpath("Toolbox/Toolbox difuso");
 
 load("Fuzzy/modelo_difuso.mat");
@@ -17,7 +19,7 @@ X_val = split.X_val(:, reg);
 Y_val = split.Y_val;
 
 %% Fit
-alpha = 6;
+alpha = 10.25;
 
 [Psi_train, sigma] = getCovIntervalParams(X_train, Y_train, modelFuzzy.a,modelFuzzy.b,modelFuzzy.g);
 
@@ -25,6 +27,7 @@ alpha = 6;
 
 X = X_val;
 Y = Y_val;
+p = 8; %Pasos
 
 [Nv,n]=size(X);
 NR = size(modelFuzzy.a,1);
@@ -39,17 +42,13 @@ yp_low = zeros(length(Y), 1);
 yp = zeros(length(Y), 1);
 [Nd,~]=size(X);
 
-p = 1; %Pasos
-
 for k=1:Nd-p+1
     X_y = X(k, 1:ny); %Regresores de y
     for h=1:p
         X_u = X(k+h-1, ny+1:end);
         X_new = [X_y, X_u];
         [y_pred_upper, y_pred, y_pred_lower] = covFuzzyInterval(factor, sigma, X_new, modelFuzzy.a, modelFuzzy.b, modelFuzzy.g, alpha);
-        yp_up(k) = y_pred_upper;
-        yp_low(k) = y_pred_lower;
-        yp(k) = y_pred;
+        
 
         X_y = circshift(X_y, 1); %Correr regresores de y
         X_y(1) = y_pred; %Agregar prediccion a los regresores
@@ -60,20 +59,26 @@ for k=1:Nd-p+1
             yp(k+h-1) = y_pred;
         end
     end
+    yp_up(k+p-1) = y_pred_upper;
+    yp_low(k+p-1) = y_pred_lower;
+    yp(k+p-1) = y_pred;
 end
 
 %% Metricas
-pinaw = PINAW(Y, yp_low, yp_up);
-picp = PICP(Y, yp_low, yp_up);
+pinaw = PINAW(Y, yp_low, yp_up)
+picp = PICP(Y, yp_low, yp_up)
+rmse = RMSE(Y, yp);
 
 %% Plot
 mostrar = 500;
 figure()
-plot(Y(1:500), '.b')
+plot(Y(1:mostrar), '.b')
 hold on
-plot(y_pred, 'r')
+plot(yp(1:mostrar), 'r')
 x = 1:1:length(Y);
-fill([x(1:500) fliplr(x(1:500))], [yp_low(1:500)' fliplr(yp_up(1:500)')], 'k', 'FaceAlpha', 0.2);
+fill([x(1:mostrar) fliplr(x(1:mostrar))], [yp_low(1:mostrar)' fliplr(yp_up(1:mostrar)')], 'k', 'FaceAlpha', 0.2);
 
 legend('Valor real', 'Valor esperado')
-
+ylabel('Amplitud')
+xlabel('Tiempo k')
+title("Prediccion a " + p + " pasos" )
