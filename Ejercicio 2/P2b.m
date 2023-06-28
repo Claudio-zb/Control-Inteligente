@@ -31,6 +31,7 @@ r2 = 18;
 r3 = 25;
 dt = 600; %En segundos
 horizonte = 5;
+metodo = 1; %0: fmincon; 1: PSO
 
 pasos = pasos1+pasos2+pasos3;
 
@@ -54,7 +55,7 @@ tiempos = zeros(1, pasos);
 iterationsk = zeros(1, pasos);
 for k=1:1:pasos
     tic
-    [u, iterations] = mpc(horizonte, T1all(k), T2all(k), flip(temperatura(k:k+ny-1))', dt, modelFuzzy, reg, r(k), 1);
+    [u, iterations] = mpc(horizonte, T1all(k), T2all(k), flip(temperatura(k:k+ny-1))', dt, modelFuzzy, reg, r(k), metodo);
     tiempos(k) = toc;
     iterationsk(k) = iterations;
     uall(k) = u;
@@ -64,14 +65,15 @@ for k=1:1:pasos
 end
 uall(end) = uall(end-1);
 
-% Esfuerzo computacional
+% Esfuerzo computacional y error
 display("Tiempo total: " + sum(tiempos) + " | Tiempo promedio: " + sum(tiempos)/length(tiempos))
 display("Iteraciones total: " + sum(iterationsk) + " | Iteraciones promedio: " + sum(iterationsk)/length(iterationsk))
+display("RMSE: " + RMSE(r, T1all) + " | MAE: "+ MAE(r, T1all) + " | MAPE: " + MAPE(r, T1all))
 
 %Graficos
 x = 0:dt/60:pasos*dt/60;
 figure
-
+set(gcf, 'Position', [100, 100, 1280, 720]);
 subplot(2,1,1)
 plot(x, T1all)
 hold on
@@ -90,6 +92,16 @@ title("Entrada dms/dt")
 ylabel('Flujo másico de aire [kg/s]')
 xlabel('Tiempo [min]')
 ylim([min(uall)-0.3, max(uall)+0.3])
+
+%GUARDAR RESULTADOS
+% res = struct("u", uall, "T1", T1all, "r", r, "Ta", Ta);
+% if(metodo==0)
+%     saveas(gcf, 'resfmincon.png')
+%     save("resfmincon.mat", "res")
+% elseif(metodo==1)
+%     saveas(gcf, 'respso.png')
+%     save("respso.mat", "res")
+% end
 
 function [T1, T2] = predict(horizonte, T1k, T2k, Taanteriores, u, dt, modelFuzzy, reg)
 assert(horizonte==length(u), "Entrada no apta para el horizonte de prediccion")
@@ -147,8 +159,8 @@ function [u, iterations] = mpc(horizonte, T1k, T2k, Taanteriores, dt, modelFuzzy
 assert(type==0||type==1, "Tipo no soportado")
 fun = @(x)costo(r, predict(horizonte, T1k, T2k, Taanteriores, x, dt, modelFuzzy, reg));
 if (type==0)
-    options = optimoptions('fmincon', 'Algorithm','interior-point');
-    [us,fval,exitflag,output] = fmincon(fun, zeros(1, horizonte), [], [], [], [], zeros(1,horizonte)+0.1, zeros(1,horizonte)+2, [], options);
+    options = optimoptions('fmincon', 'Algorithm','interior-point', 'MaxIterations', 1000);
+    [us,fval,exitflag,output] = fmincon(fun, zeros(1, horizonte)+1, [], [], [], [], zeros(1,horizonte)+0.1, zeros(1,horizonte)+2, [], options);
     iterations = output.iterations;
 elseif (type==1)
     options = optimoptions('particleswarm','SwarmSize', min(100, horizonte*10), 'MaxIterations', 200*horizonte);
