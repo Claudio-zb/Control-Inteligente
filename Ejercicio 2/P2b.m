@@ -14,7 +14,7 @@ load("temperatura_10min.mat")
 load("P2a/split.mat");
 temperatura = split.Y_val;
 %TAMBIEN SE PUEDE CORRER LA TEMPERATURA AMBIENTAL USADA
-inicio = 1;
+inicio = 721-9;
 temperatura = temperatura(inicio:end);
 
 %Cargar modelo difuso
@@ -29,10 +29,12 @@ pasos3 = 6;
 r1 = 20;
 r2 = 18;
 r3 = 25;
-dt = 600;
+dt = 600; %En segundos
 horizonte = 5;
 
 pasos = pasos1+pasos2+pasos3;
+
+Ta = temperatura(1:pasos+1);
 
 %Datos
 T1all = zeros(1, pasos+1);
@@ -41,12 +43,12 @@ T2all = zeros(1, pasos+1);
 T1all(1) = 10.12;
 T2all(1) = 10.12;
 
-uall = zeros(1, pasos);
+uall = zeros(1, pasos+1);
 
-r = zeros(1, pasos);
+r = zeros(1, pasos+1);
 r(1:pasos1) = r1;
 r(pasos1+1:pasos1+pasos2) = r2;
-r(pasos1+pasos2+1:end) = r3;
+r(pasos1+pasos2+1:pasos+1) = r3;
 
 tiempos = zeros(1, pasos);
 iterationsk = zeros(1, pasos);
@@ -60,11 +62,34 @@ for k=1:1:pasos
     T1all(k+1) = T1 + randn()*0.001;
     T2all(k+1) = T2 + randn()*0.001;
 end
+uall(end) = uall(end-1);
 
 % Esfuerzo computacional
 display("Tiempo total: " + sum(tiempos) + " | Tiempo promedio: " + sum(tiempos)/length(tiempos))
 display("Iteraciones total: " + sum(iterationsk) + " | Iteraciones promedio: " + sum(iterationsk)/length(iterationsk))
 
+%Graficos
+x = 0:dt/60:pasos*dt/60;
+figure
+
+subplot(2,1,1)
+plot(x, T1all)
+hold on
+stairs(x, r)
+plot(x, Ta)
+legend('T1 real', 'Referencia', 'Ta', 'Location', 'southeast')
+ylabel('Temperatura [°C]')
+xlabel('Tiempo [min]')
+title('Temperaturas')
+ylim([min(T1all)-3, max(T1all)+3])
+
+subplot(2,1,2)
+plot(x, uall)
+xlim([0, pasos*dt/60])
+title("Entrada dms/dt")
+ylabel('Flujo másico de aire [kg/s]')
+xlabel('Tiempo [min]')
+ylim([min(uall)-0.3, max(uall)+0.3])
 
 function [T1, T2] = predict(horizonte, T1k, T2k, Taanteriores, u, dt, modelFuzzy, reg)
 assert(horizonte==length(u), "Entrada no apta para el horizonte de prediccion")
