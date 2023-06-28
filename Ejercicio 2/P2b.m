@@ -8,26 +8,62 @@ addpath("P2a/Toolbox difuso");
 load("P2a/modelo.mat");
 load("temperatura_10min.mat")
 
+% Deberia ocuparse como temperatura real la de validacion, o si no el
+% modelo difuso entregaria predicciones sobreajustadas.
+% PARA ELLO DEJAR DESCOMENTADA LAS SIGUIENTES LINEAS
+load("P2a/split.mat");
+temperatura = split.Y_val;
+%TAMBIEN SE PUEDE CORRER LA TEMPERATURA AMBIENTAL USADA
+inicio = 1;
+temperatura = temperatura(inicio:end);
+
+%Cargar modelo difuso
 modelFuzzy = modelo.modelFuzzy;
 reg = modelo.reg;
+ny = length(reg);
 
-pasos = 1000;
+%Parametros de la simulacion
+pasos1 = 6;
+pasos2 = 6;
+pasos3 = 6;
+r1 = 20;
+r2 = 18;
+r3 = 25;
+dt = 600;
+horizonte = 5;
 
+pasos = pasos1+pasos2+pasos3;
+
+%Datos
 T1all = zeros(1, pasos+1);
 T2all = zeros(1, pasos+1);
+%Temperatura inicial
 T1all(1) = 10.12;
 T2all(1) = 10.12;
-dt = 10;
-horizonte = 5;
+
 uall = zeros(1, pasos);
+
+r = zeros(1, pasos);
+r(1:pasos1) = r1;
+r(pasos1+1:pasos1+pasos2) = r2;
+r(pasos1+pasos2+1:end) = r3;
+
+tiempos = zeros(1, pasos);
+iterationsk = zeros(1, pasos);
 for k=1:1:pasos
-    u = mpc(horizonte, T1all(k), T2all(k), flip(temperatura(k:k+4))', dt, modelFuzzy, reg, 20);
+    tic
+    [u, iterations] = mpc(horizonte, T1all(k), T2all(k), flip(temperatura(k:k+ny-1))', dt, modelFuzzy, reg, r(k), 1);
+    tiempos(k) = toc;
+    iterationsk(k) = iterations;
     uall(k) = u;
-    [T1, T2] = predict(1, T1all(k), T2all(k), flip(temperatura(k:k+4))', u, dt, modelFuzzy, reg);
+    [T1, T2] = predict(1, T1all(k), T2all(k), flip(temperatura(k:k+ny-1))', u, dt, modelFuzzy, reg);
     T1all(k+1) = T1 + randn()*0.001;
     T2all(k+1) = T2 + randn()*0.001;
 end
 
+% Esfuerzo computacional
+display("Tiempo total: " + sum(tiempos) + " | Tiempo promedio: " + sum(tiempos)/length(tiempos))
+display("Iteraciones total: " + sum(iterationsk) + " | Iteraciones promedio: " + sum(iterationsk)/length(iterationsk))
 
 
 function [T1, T2] = predict(horizonte, T1k, T2k, Taanteriores, u, dt, modelFuzzy, reg)
@@ -82,8 +118,18 @@ function j = costo(r, T1)
 j = sum((T1-r).^2);
 end
 
-function u = mpc(horizonte, T1k, T2k, Taanteriores, dt, modelFuzzy, reg, r)
+function [u, iterations] = mpc(horizonte, T1k, T2k, Taanteriores, dt, modelFuzzy, reg, r, type)
+assert(type==0||type==1, "Tipo no soportado")
 fun = @(x)costo(r, predict(horizonte, T1k, T2k, Taanteriores, x, dt, modelFuzzy, reg));
-us = fmincon(fun, zeros(1, horizonte), [], [], [], [], zeros(1,horizonte)+0.1, zeros(1,horizonte)+2, []);
+if (type==0)
+    options = optimoptions('fmincon', 'Algorithm','interior-point');
+    [us,fval,exitflag,output] = fmincon(fun, zeros(1, horizonte), [], [], [], [], zeros(1,horizonte)+0.1, zeros(1,horizonte)+2, [], options);
+    iterations = output.iterations;
+elseif (type==1)
+    options = optimoptions('particleswarm','SwarmSize', min(100, horizonte*10), 'MaxIterations', 200*horizonte);
+    [us,fval,exitflag,output] = particleswarm(fun, horizonte,zeros(1,horizonte)+0.1,zeros(1,horizonte)+2,options);
+    iterations = output.iterations;
+end
+
 u = us(1);
 end
